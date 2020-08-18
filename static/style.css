@@ -1,0 +1,39 @@
+.grid {
+    display: table;
+    margin: auto;
+}
+
+.interface {
+    margin: 25px auto;
+    text-align: center;
+}
+
+.row {
+    display: table-row;
+}
+
+.cell {
+    display: table-cell;
+    border: 1px solid;
+    height: 25px;
+    width: 25px;
+    text-align: center;
+}
+
+.noborder {
+    border: 0px;
+}
+
+.error {
+    color: red;
+}
+
+.debug {
+    margin-top: 30px;
+    border: 2px solid red;
+    color: red;
+}
+
+form {
+    margin: 25px auto;
+}

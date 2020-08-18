@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>ChessFlask: Game</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    </head>
+    <body>
+        <div class="grid">
+            <div class="row" id="label">
+                <div class="cell noborder" id="cell0">&nbsp;</div>
+                {% for cell in range(8) %}
+                <div class="cell noborder" id="cell{{ loop.index }}">{{ loop.index0 }}</div>
+                {% endfor %}
+            </div>
+            {% for row in ui.board %}
+            <div class="row" id="row{{ 8 - loop.index0 }}">
+                <div class="cell noborder" id="cell0">{{ 7 - loop.index0 }}</div>
+                {% for cell in row %}
+                <div class="cell" id="cell{{ loop.index }}">{{ cell }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="interface">
+            <div>
+            {% if ui.winner is none %}
+                <form action="/play" method="post">
+                    <label>{{ ui.inputlabel }}</label>
+                    <input type="text" name="player_input" value="">
+                    <input type="submit" value="{{ ui.btnlabel }}">
+                </form>
+                <form action="/undo" method="get">
+                    <input type="submit" value="Undo" {% if not ui.undo %}disabled{% endif %}>
+                </form>
+            {% else %}
+                <p>{{ ui.winner.title() }} wins!</p>
+            {% endif %}
+            </div>
+            {% if ui.errmsg is not none %}
+                <p class="error">{{ ui.errmsg }}</p>
+            {% endif %}
+            {% if ui.debugmsg is not none %}
+                <div class="debug">
+                    <h3>Debug messages</h3>
+                    <p>{{ ui.debugmsg }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </body>
+</html>
