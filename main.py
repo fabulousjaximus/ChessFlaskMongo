@@ -80,9 +80,9 @@ def promote():
     digits = request.args['coord']
     coord = (digits[0], digits[1])
     # Process pawn promotion
-    # Player will be prompted for another input if invalid
     if request.METHOD == 'POST':
         char = request.form['player_input'].lower()
+        # Player will be prompted for another input if invalid
         if char in 'rkbq':
             board.promote_pawn(coord,
                                char,
