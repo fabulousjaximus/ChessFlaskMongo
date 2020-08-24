@@ -25,7 +25,7 @@
         <div class="interface">
             <div>
             {% if ui.winner is none %}
-                <form action="/play" method="post">
+                <form action="{{ ui.action }}" method="post">
                     <label>{{ ui.inputlabel }}</label>
                     <input type="text" name="player_input" value="">
                     <input type="submit" value="{{ ui.btnlabel }}">

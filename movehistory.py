@@ -26,17 +26,21 @@ class MoveHistory:
             raise IndexError('MoveHistory is empty')
         move = self.__data[self.head]
         self.__data[self.head] = None
+
         if self.head == 0:
             self.head = self.size - 1
         else:
             self.head -= 1
-        # Check for empty move history
+        self.step -= 1
+        # If no value stored at new head,
+        # we assume MoveHistory is empty
         if self.__data[self.head] is None:
             self.head = None
-        self.step -= 1
+
         return move
 
     def this_move(self):
+        '''Return the current move object (which head points to).'''
         if self.isempty():
             raise IndexError('MoveHistory is empty')
         return self.__data[self.head]

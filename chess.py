@@ -601,15 +601,15 @@ class ChessBoard:
                 return coord
         return None
 
-    def promote_pawn(self, coord, letter, **kwargs):
-        piece_map = {'r': Rook,
+    def promote_pawn(self, coord, char, **kwargs):
+        piece_dict = {'r': Rook,
                      'k': Knight,
                      'b': Bishop,
                      'q': Queen,
                      }
-        # Transfer old_piece attributes to new_piece
+        # Transfer old_piece move attributes to new_piece
         old_piece = self.get_piece(coord)
-        new_piece = piece_map[letter.lower()](old_piece.colour)
+        new_piece = piece_dict[char.lower()](old_piece.colour)
         new_piece.moved = old_piece.moved
         self.add(coord, new_piece, push_to=kwargs.get('push_to'))
 
@@ -617,7 +617,8 @@ class ChessBoard:
         while len(move.changes) > 0:
             change = move.changes.pop()
             if change['action'] == 'add':
-                if self.get_piece(change['coord']) != change['piece']:
+                if self.get_piece(change['coord']) is not None \
+                and self.get_piece(change['coord']) != change['piece']:
                     raise UndoError('history piece does not match board piece')
                 else:
                     # Do not push move to history
@@ -626,7 +627,7 @@ class ChessBoard:
                 self.add(change['coord'], change['piece'])
 
 
-    def update(self, move):
+    def update(self, move, **kwargs):
         '''
         Update board information with the player's move.
         Update move information with added/removed pieces.
