@@ -268,19 +268,6 @@ class GameMaster:
                 raise DestinationIsBlockedError(move,
                     f'{end} is occupied by {end_piece}')
 
-        def validatepathblocked(start, end):
-            '''
-            Checks if the path between start and end is not
-            occupied by any pieces.
-            Raises MoveError if conditions not met.
-            '''
-            piece = kwargs['board'].get_piece(start)
-            if piece.name.lower() != 'knight':
-                for coord in kwargs['board'].coords_between(start, end):
-                    if kwargs['board'].get_piece(coord) is not None:
-                        raise PathIsBlockedError(move,
-                f'Path from {start} to {end} is blocked')
-
         def ispawncapture(start, end, colour):
             x, y, dist = vector(start, end)
             own_piece = kwargs['board'].get_piece(start)
@@ -300,7 +287,6 @@ class GameMaster:
         # (1)
         try:
             validatestartend(move.start, move.end)
-            validatepathblocked(move.start, move.end)
         except MoveError:
             raise
         # (3)
@@ -365,9 +351,8 @@ class ChessBoard:
     00  10  20  30  40  50  60  70
     '''
     movetypes = {'pawncapture', 'capture', 'move'}
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.position = {}
-        self.debug = kwargs.get('debug', False)
 
     @staticmethod
     def vector(start, end):
@@ -386,35 +371,6 @@ class ChessBoard:
         dist = abs(x) + abs(y)
         return x, y, dist
 
-    @classmethod
-    def coords_between(cls, start, end):
-        '''
-        Return list of coordinates between start and end coord.
-        List does not include start coord but includes end coord.
-        Move must be horizontal, vertical, or diagonal only.
-        '''
-        x, y, dist = vector(start, end)
-        if dist == 0:  # x == 0 and y == 0
-            return []
-        elif x == 0:  # vertical move
-            incr = 1 if y > 0 else -1
-            return [(start[0], row) for row in \
-                    range(start[1] + incr, end[1], incr)]
-        elif y == 0:  # horizontal move
-            incr = 1 if x > 0 else -1
-            return [(col, start[1]) for col in \
-                    range(start[0] + incr, end[0], incr)]
-        elif abs(x) == abs(y):
-            y_incr = 1 if y > 0 else -1
-            x_incr = 1 if x > 0 else -1
-            cols = [(col, start[1]) for col in \
-                    range(start[0] + y_incr, end[0] + y_incr, y_incr)]
-            rows = [(start[0], row) for row in \
-                    range(start[1] + x_incr, end[1] + x_incr, x_incr)]
-            return [(col, row) for col, row in zip(cols, rows)]
-        else:
-            raise InvalidMoveError(start, end, 'Not a horizontal, vertical, or diagonal move')
-        
     def coords(self, colour=None):
         '''
         Return list of piece coordinates.
