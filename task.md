@@ -10,21 +10,18 @@ To refactor the web app to use a MongoDB database as the backend, with minimal c
 
 # Task
 
-1. Implement a `DataSource` class, with methods for:
-   - retrieving all coordinates
-   - retrieving all pieces
-   - retrieving one piece
-   - removing one piece
-   - updating the position of one piece
+1. Refactor the `ChessBoard` class in `chess.py` to abstractise access to the data.
+2. Implement a `DataSource` class, with methods for accessing, modifying, and removing data from a MongoDB database.
+
+You may find it helpful to move the data access methods from `ChessBoard` to a new class.
 
 Each group is to submit:
 
-1. A repl link to a working web app,
-2. An *individual* video (not more than 5 min) explaining how the following features were applied:
-   - main game features
-   - undo feature (Move History)
+1. A repl link to a working web app.
 
 # Grading criteria
 
-Each criteria is assigned a score of 0-2 depending on how well the requirements were met.
+Your group's code will be graded based on:
 
+- proper abstraction in `ChessBoard`
+- appropriate access of data in MongoDB
