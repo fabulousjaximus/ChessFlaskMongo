@@ -29,10 +29,9 @@ def newgame():
 @app.route('/play', methods=['GET', 'POST'])
 def play():
     # Player input will be passed through POST request
-    # Any GET request can be assumed to not contain move info
-    if request.method == 'GET':
-        pass
-    elif request.method == 'POST':
+    # Any GET request can be assumed to not contain move info;
+    # go straight to ui update
+    if  request.method == 'POST':
         # Normal board display
         # Called when:
         # 1. Prev player turn completed normally
@@ -47,14 +46,6 @@ def play():
                 return render_template('chess.html', ui=ui)
             board.update(move)
             ui.board = board.as_str()
-            # Redirect for promotion prompt
-            # Called when:
-            # 1. There are pawns to be promoted at end of player's turn
-            promote_coord = board.pawns_to_promote(move.player)
-            if promote_coord is not None:
-                ui.errmsg = None
-                col, row = promote_coord
-                return redirect('/promote', coord=f'{col}{row}')
 
         # Player turn expected to be complete if
         # this point is reached
