@@ -4,7 +4,6 @@
 from flask import Flask, render_template, redirect, request
 from chess import GameMaster, ChessBoard
 from interface import WebInterface
-from movehistory import MoveHistory
 from errors import MoveError
 
 app = Flask(__name__)
@@ -12,7 +11,6 @@ app = Flask(__name__)
 ui = WebInterface()
 board = ChessBoard()
 game = GameMaster()
-history = MoveHistory(10)
 
 # We assume that white and black player are seated at the same keyboard and taking turns.
 # Hence black player can undo her move after turn switches to white player. 
@@ -43,14 +41,12 @@ def play():
             try:
                 move = game.get_player_move(request.form['player_input'],
                                             board=board,
-                                            step=(history.step + 1),
                 )
             except MoveError as e:
                 ui.errmsg = e.msg
                 return render_template('chess.html', ui=ui)
             board.update(move, push_to=move)
             ui.board = board.as_str()
-            history.push(move)
             # Redirect for promotion prompt
             # Called when:
             # 1. There are pawns to be promoted at end of player's turn
@@ -68,7 +64,6 @@ def play():
     ui.board = board.as_str()
     ui.inputlabel = f'{game.turn.title()} player:'
     ui.btnlabel = 'Move'
-    ui.undo = (not history.isempty())
     ui.action = '/play'
     # ui.debugmsg = board.as_str()
     return render_template('chess.html', ui=ui)
@@ -86,7 +81,6 @@ def promote():
         if char in 'rkbq':
             board.promote_pawn(coord,
                                char,
-                               push_to=history.this_move(),
                                )
             return redirect('/play')
         else:
@@ -100,7 +94,6 @@ def promote():
 
 @app.route('/undo')
 def undo():
-    move = history.pop()
     board.undo(move)
     game.next_turn()
     return redirect('/play')

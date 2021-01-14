@@ -264,10 +264,10 @@ class GameMaster:
         1. Move is valid;
            Path between start and end coord is not blocked
            (for Rook, Bishop, Queen)
-        2. The move is a valid castling move
+        ~~2. The move is a valid castling move~~
         3. For pawn piece, the move is:
            - pawn capture
-           - en passant capture
+           ~~- en passant capture~~
            - pawn move
         4. For other pieces, the move is valid for the selected piece
         
@@ -321,37 +321,6 @@ class GameMaster:
                     return True
             return False
         
-        def isenpassantcapture(start, end, colour):
-            s_col, s_row = start
-            e_col, e_row = end
-            enpassant_coord = (s_row, e_col)
-            opp_piece = kwargs['board'].get_piece(enpassant_coord)
-            # TODO: Use more robust way of checking for 
-            # enpassant capture
-            if opp_piece is not None \
-                    and (self.turn == 'white' and s_row == 4
-                        or self.turn == 'black' and s_row == 3) \
-                    and opp_piece.colour != self.turn \
-                    and opp_piece.moved == 1 \
-                    and abs(e_col - s_col) == 1:
-                return True
-            return False
-
-        def iscastling(start, end, colour):
-            start_piece = kwargs['board'].get_piece(start)
-            if not start_piece.name == 'king' or start_piece.moved:
-                return False
-            x, y, dist = vector(start, end)
-            if not (y == 0 and abs(x) == 2):
-                return False
-            rook_col = 0 if x < 0 else 7
-            rook_row = 0 if colour == 'white' else 7
-            rook_coord = (rook_col, rook_row)
-            rook_piece = kwargs['board'].get_piece(rook_coord)
-            if not rook_piece.name == 'rook' or rook_piece.moved:
-                return False
-            return True
-
         start_piece = kwargs['board'].get_piece(move.start)
         end_piece = kwargs['board'].get_piece(move.end)
 
@@ -361,15 +330,10 @@ class GameMaster:
             validatepathblocked(move.start, move.end)
         except MoveError:
             raise
-        # (2)
-        if iscastling(move.start, move.end, move.player):
-            return 'castling'
         # (3)
         if start_piece.name == 'pawn':
             if ispawncapture(move.start, move.end, move.player):
                 return 'pawncapture'
-            if isenpassantcapture(move.start, move.end, move.player):
-                return 'enpassantcapture'
             if start_piece.isvalid(move.start, move.end):
                 return 'move'
         # (4)
