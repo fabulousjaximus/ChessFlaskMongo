@@ -45,7 +45,7 @@ def play():
             except MoveError as e:
                 ui.errmsg = e.msg
                 return render_template('chess.html', ui=ui)
-            board.update(move, push_to=move)
+            board.update(move)
             ui.board = board.as_str()
             # Redirect for promotion prompt
             # Called when:
@@ -67,35 +67,5 @@ def play():
     ui.action = '/play'
     # ui.debugmsg = board.as_str()
     return render_template('chess.html', ui=ui)
-
-@app.route('/promote', methods=['GET', 'POST'])
-def promote():
-    # /promote path must always have coord in GET parameter so that
-    # board knows where the pawn to be promoted is
-    digits = request.args['coord']
-    coord = (digits[0], digits[1])
-    # Process pawn promotion
-    if request.METHOD == 'POST':
-        char = request.form['player_input'].lower()
-        # Player will be prompted for another input if invalid
-        if char in 'rkbq':
-            board.promote_pawn(coord,
-                               char,
-                               )
-            return redirect('/play')
-        else:
-            ui.errmsg = 'Invalid input (r, k, b, or q only). Please try again.'
-            return redirect('/promote', coord=digits)
-    ui.board = board.as_str()
-    ui.inputlabel = f'Promote pawn at {coord} to (r, k, b, q): '
-    ui.btnlabel = 'Promote'
-    ui.action = '/promote'
-    return render_template('chess.html', ui=ui)
-
-@app.route('/undo')
-def undo():
-    board.undo(move)
-    game.next_turn()
-    return redirect('/play')
 
 app.run(host='0.0.0.0')

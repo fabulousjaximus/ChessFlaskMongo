@@ -5,7 +5,6 @@ from errors import (MoveError,
                     DestinationIsBlockedError,
                     PathIsBlockedError,
                     InputError,
-                    UndoError,
                     )
 
 
@@ -26,9 +25,6 @@ def vector(start, end):
     dist = abs(x) + abs(y)
     return x, y, dist
 
-def debugmsg(msg):
-    print('[DEBUG]', msg)
-
 
 
 class Move:
@@ -39,30 +35,7 @@ class Move:
         self.start = kwargs['start']
         self.end = kwargs['end']
         self.movetype = kwargs.get('movetype')
-        self.changes = kwargs.get('changes', [])
     
-    def push(self, **kwargs):
-        action = kwargs['action']
-        coord = kwargs['coord']
-        piece = kwargs['piece']
-        if type(action) != str:
-            raise TypeError('str expected for action argument')
-        if action not in ('add', 'remove'):
-            raise ValueError('action must be add or remove')
-        if type(coord) != tuple and len(coord) != 2:
-            raise TypeError('invalid coordinates provided')
-        # Store a copy of piece to preserve moved attribute value
-        self.changes.append({'action': action,
-                             'coord': coord,
-                             'piece': copy(piece),
-                             })
-    
-    def pop(self):
-        if len(self.changes) > 0:
-            return self.changes.pop()
-        else:
-            raise IndexError('no changes to pop from history')
-
 
 
 class BasePiece:
@@ -391,7 +364,7 @@ class ChessBoard:
     01  11  21  31  41  51  61  71
     00  10  20  30  40  50  60  70
     '''
-    movetypes = {'pawncapture', 'enpassant', 'castling', 'capture', 'move'}
+    movetypes = {'pawncapture', 'capture', 'move'}
     def __init__(self, **kwargs):
         self.position = {}
         self.debug = kwargs.get('debug', False)
@@ -485,39 +458,29 @@ class ChessBoard:
         '''
         return self.position.get(coord, None)
 
-    def add(self, coord, piece, **kwargs):
+    def add(self, coord, piece):
         '''Add/replace a piece at coord.'''
         if self.get_piece(coord) is not None:
-            self.remove(coord, push_to=kwargs.get('push_to'))
+            self.remove(coord)
         self.position[coord] = piece
-        if kwargs.get('push_to'):
-            kwargs['push_to'].push(action='add',
-                                coord=coord,
-                                piece = piece,
-                                )
 
-    def remove(self, coord, **kwargs):
+    def remove(self, coord):
         '''
         Remove the piece at coord, if any.
         Does nothing if there is no piece at coord.
         '''
         if coord in self.coords():
-            if kwargs.get('push_to'):
-                kwargs['push_to'].push(action='remove',
-                                    coord=coord,
-                                    piece = self.get_piece(coord),
-                                    )
             del self.position[coord]
 
-    def move(self, start, end, **kwargs):
+    def move(self, start, end):
         '''
         Move the piece at start to end.
         Validation should be carried out first
         to ensure the move is valid.
         '''
         piece = self.get_piece(start)
-        self.remove(start, push_to=kwargs.get('push_to'))
-        self.add(end, piece, push_to=kwargs.get('push_to'))
+        self.remove(start)
+        self.add(end, piece)
 
     def clear(self):
         '''Clear all pieces off the board.'''
@@ -549,77 +512,12 @@ class ChessBoard:
         for x in range(0, 8):
             self.add((x, 1), Pawn(colour))
 
-    def pawns_to_promote(self, colour):
-        '''Returns the first coord of any pawn to be promoted'''
-        if colour == 'white':
-            enemy_home = 7
-        elif colour == 'black':
-            enemy_home = 0
-        else:
-            raise ValueError("colour must be {'white', 'black'}")
-        for coord in self.get_coords(colour, 'pawn'):
-            col, row = coord
-            if row == enemy_home:
-                # TODO: replace with raise PromptPromotionPiece
-                # with 'msg' argument and 'prompt' kwarg
-                return coord
-        return None
-
-    def promote_pawn(self, coord, char, **kwargs):
-        piece_dict = {'r': Rook,
-                     'k': Knight,
-                     'b': Bishop,
-                     'q': Queen,
-                     }
-        # Transfer old_piece move attributes to new_piece
-        old_piece = self.get_piece(coord)
-        new_piece = piece_dict[char.lower()](old_piece.colour)
-        new_piece.moved = old_piece.moved
-        self.add(coord, new_piece, push_to=kwargs.get('push_to'))
-
-    def undo(self, move):
-        while len(move.changes) > 0:
-            change = move.changes.pop()
-            if change['action'] == 'add':
-                if self.get_piece(change['coord']) is not None \
-                and self.get_piece(change['coord']) != change['piece']:
-                    raise UndoError('history piece does not match board piece')
-                else:
-                    # Do not push move to history
-                    self.remove(change['coord'])
-            elif change['action'] == 'remove':
-                self.add(change['coord'], change['piece'])
-
-
-    def update(self, move, **kwargs):
+    def update(self, move):
         '''
         Update board information with the player's move.
         Update move information with added/removed pieces.
         '''
-        end_piece = self.get_piece(move.end)
-
-        # Remove opponent piece to be captured
-        if move.movetype == 'capture':
-            move.push(action='remove', coord=move.end, piece=end_piece)
-        elif move.movetype == 'enpassantcapture':
-            s_col, s_row = move.start
-            e_col, e_row = move.end
-            enpassant_coord = (s_row, e_col)
-            self.remove(enpassant_coord, push_to=move)
-
-        self.move(move.start, move.end, push_to=move)
-
-        # Move rook for castling
-        if move.movetype == 'castling':
-            s_col, s_row = move.start
-            e_col, e_row = move.end
-            if e_col < s_col:    # castle leftward
-                rook_start, rook_end = (0, s_row), (3, e_row)
-            elif e_col > s_col:  # castle rightward
-                rook_start, rook_end = (7, s_row), (5, e_row)
-            piece = self.get_piece(rook_start)
-            assert piece.name == 'rook', f'Piece at {rook_start} is not a rook'
-            self.move(rook_start, rook_end, push_to=kwargs.get('push_to'))
+        self.move(move.start, move.end)
 
     def winner(self, **kwargs):
         white_king_alive = bool(self.get_coords('white', 'king'))
@@ -631,7 +529,7 @@ class ChessBoard:
         elif not white_king_alive and black_king_alive:
             return 'black'
         else:
-            debugmsg('Neither king is on the board')
+            return None
 
     def as_str(self):
         '''
