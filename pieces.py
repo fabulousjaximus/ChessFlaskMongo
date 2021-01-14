@@ -3,6 +3,7 @@ from common import vector
 class BasePiece:
     name = 'piece'
     def __init__(self, colour):
+        self.moved = False
         if type(colour) != str:
             raise TypeError('colour argument must be str')
         elif colour.lower() not in {'white', 'black'}:

@@ -76,8 +76,7 @@ class GameMaster:
         elif not valid_num(inputstr):
             raise InputError('Invalid input. Move digits should be 0-7.')
         start, end = split_and_convert(inputstr)
-        move = Move(kwargs['step'],
-                    start=start,
+        move = Move(start=start,
                     end=end,
                     player=self.turn,
                     )
@@ -275,6 +274,7 @@ class ChessBoard:
         to ensure the move is valid.
         '''
         piece = self.get_piece(start)
+        piece.moved = True
         self.remove(start)
         self.add(end, piece)
 
