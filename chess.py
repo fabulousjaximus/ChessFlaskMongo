@@ -236,7 +236,7 @@ class ChessBoard:
         if colour in ('white', 'black'):
             return [coord for coord, piece in self.position.items() if piece.colour == colour]
         elif colour is None:
-            return self.position.keys()
+            return list(self.position.keys())
         else:
             raise ValueError('Invalid keyword argument colour={colour}')
 
@@ -248,7 +248,7 @@ class ChessBoard:
         if colour in ('white', 'black'):
             return [piece for piece in self.position.values() if piece.colour == colour]
         elif colour is None:
-            return self.position.values()
+            return list(self.position.values())
         else:
             raise ValueError('Invalid keyword argument colour={colour}')
     
@@ -297,7 +297,7 @@ class ChessBoard:
 
     def clear(self):
         '''Clear all pieces off the board.'''
-        for coord in list(self.coords()):
+        for coord in self.coords():
             self.remove(coord)
 
     def start(self):
