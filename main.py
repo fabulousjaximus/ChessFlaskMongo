@@ -83,6 +83,7 @@ def play():
     # Player input will be passed through POST request
     # Any GET request can be assumed to not contain move info;
     # go straight to ui update
+    ui.errmsg = None
     if  request.method == 'POST':
         # Normal board display
         # Called when:
