@@ -48,7 +48,7 @@ Define two methods for the `BasePiece`, `ChessBoard`, and `GameMaster` classes a
 
 ## Task 3
 
-Define a `DataSource` class provides methods for creating, retrieving, and modifying game data from a MongoDB database as follows:
+Define a `DataSource` class that provides methods for creating, retrieving, and modifying game data from a MongoDB database as follows:
 
 - `load(label) -> board, game`
   Load data from the database using `label`.
@@ -70,7 +70,7 @@ Define a `DataSource` class provides methods for creating, retrieving, and modif
 
 Define a function, `save_to_json()`, that writes the game data to a JSON file.
 
-Call this function after each players' turn.
+This function is called after each players' turn.
 
 (This will aid you in debugging, by making it easier to inspect your data.)
 
