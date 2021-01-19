@@ -13,3 +13,25 @@ def vector(start, end):
     y = end[1] - start[1]
     dist = abs(x) + abs(y)
     return x, y, dist
+
+class Move:
+    '''Abstract class to represent a chess move'''
+    def __init__(self, step=None, **kwargs):
+        self.step = step
+        self.player = kwargs['player']
+        self.start = kwargs['start']
+        self.end = kwargs['end']
+        self.movetype = kwargs.get('movetype')
+    
+    def asdict(self):
+        return {'step': self.step,
+                'player': self.player,
+                'start': self.start,
+                'end': self.end,
+                'movetype': self.movetype,
+                }
+
+    @classmethod
+    def fromdict(cls, movedict):
+        return cls(movedict['step'], movedict)
+

@@ -1,4 +1,4 @@
-from common import vector
+from common import vector, Move
 from pieces import King, Queen, Bishop, Knight, Rook, Pawn
 from errors import (MoveError,
                     InvalidMoveError,
@@ -7,16 +7,15 @@ from errors import (MoveError,
                     InputError,
                     )
 
+PIECE = {
+    'king': King,
+    'queen': Queen,
+    'bishop': Bishop,
+    'knight': Knight,
+    'rook': Rook,
+    'pawn': Pawn,
+}
 
-class Move:
-    '''Abstract class to represent a chess move'''
-    def __init__(self, step=None, **kwargs):
-        self.step = step
-        self.player = kwargs['player']
-        self.start = kwargs['start']
-        self.end = kwargs['end']
-        self.movetype = kwargs.get('movetype')
-    
 
 
 class GameMaster:
@@ -26,18 +25,26 @@ class GameMaster:
     1. Prompting the player for a move
     2. Checking if the move is valid
        (and re-prompting the player)
-    3. Passing the move to the board for updating
-    4. Checking if a player has won,
+    3. Checking if a player has won,
        and checking game status
     '''
     def __init__(self):
         self.turn = None
 
+    @classmethod
+    def fromdoc(cls, doc):
+        game = cls()
+        game.turn = doc['turn']
+        return game
+    
+    def asdoc(self):
+        return {'turn': self.turn}
+
     @staticmethod
     def format_move(start, end, movetype):
         return (f'{start} -> {end} {movetype}')
 
-    def start(self):
+    def newgame(self):
         self.turn = 'white'
     
     def get_player_move(self, inputstr, **kwargs):
@@ -210,6 +217,41 @@ class ChessBoard:
     def __init__(self):
         self.position = {}
 
+    @classmethod
+    def fromdoc(cls, doclist):
+        board = cls()
+        for doc in doclist:
+            coord = (doc['x'], doc['y'])
+            name = doc['piece']['name']
+            Piece = PIECE[name]
+            board.position[coord] = Piece(
+                doc['piece']['colour'],
+                doc['piece']['moved'],
+            )
+        return board
+
+    def asdoc(self):
+        doc = []
+        for coord, piece in self.position.items():
+            doc.append(
+                {'x': coord[0],
+                 'y': coord[1],
+                 'piece': piece.asdoc()
+                 }
+            )
+        return doc
+
+    def load(self, gamename, datasource):
+        '''Download board state from database'''
+        # boarddata is a dictionary of coord:piece pairs
+        boarddict = datasource.get_board(gamename)
+        for key, value in boarddict.items():
+            self.position[key] = value
+    
+    def save(self, gamename, datasource):
+        '''Upload board state to database'''
+        datasource.set_board(gamename, self.asdict())
+
     def coords(self, colour=None):
         '''
         Return list of piece coordinates.
@@ -283,7 +325,8 @@ class ChessBoard:
         for coord in self.coords():
             self.remove(coord)
 
-    def start(self):
+    def newgame(self):
+        self.clear()
         colour = 'black'
         self.add((0, 7), Rook(colour))
         self.add((1, 7), Knight(colour))

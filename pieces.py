@@ -2,8 +2,8 @@ from common import vector
 
 class BasePiece:
     name = 'piece'
-    def __init__(self, colour):
-        self.moved = False
+    def __init__(self, colour, moved=False):
+        self.moved = moved
         if type(colour) != str:
             raise TypeError('colour argument must be str')
         elif colour.lower() not in {'white', 'black'}:
@@ -22,7 +22,16 @@ class BasePiece:
 
     def symbol(self):
         return f'{self.sym[self.colour]}'
+    
+    @classmethod
+    def fromdoc(cls, doc):
+        return cls(doc['colour'], doc['moved'])
 
+    def asdoc(self):
+        return {'name': self.name,
+                'colour': self.colour,
+                'moved': self.moved,
+                }
 
 class King(BasePiece):
     name = 'king'

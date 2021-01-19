@@ -7,11 +7,17 @@
     </head>
     <body>
         <img src="{{url_for('static', filename='splash.jpg')}}" width="100%" />
-        <p style="text-align: center;">
-            <a href="/newgame">
-                <button>Start new game</button>
-            </a><br />
+        <div style="text-align: center;">
+            <form action="/newgame" method="get">
+                <input type="text" name="game" value="">
+                <input type="submit" value="New game">
+            </form>
+            <form action="/load" method="get">
+                <input type="text" name="game" value="">
+                <input type="submit" value="Load game">
+            </form>
+            <br />
             Photo by <a href="https://unsplash.com/@hpzworkz?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Hassan Pasha</a> on <a href="https://unsplash.com/s/photos/chess?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a>
-        </p>
+        </div>
     </body>
 </html>
