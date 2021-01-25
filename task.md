@@ -64,3 +64,40 @@ The state of each chess game is stord in a single MongoDB document as follows:
 ```
 
 This document is to be stored in a collection named after your group.
+
+## Task 2
+
+The piece, board and game data must be *serialised* to a database document before they can be stored. When retrieved from the database, they must be *deserialised* to an object again before they can be used in the game.
+
+Define two methods for the `BasePiece`, `ChessBoard`, and `GameMaster` classes as follows:
+
+- `fromdoc(doc)` is a **class method** that takes in a document and returns an instance of the class, properly initialised
+- `todoc()` is an **instance method** that returns the instance as a document, with appropriate attributes set as keys in the document
+
+## Task 3
+
+Define a `DataStore` class that provides methods for creating, retrieving, and modifying game data from a MongoDB database as follows:
+
+- `load(label) -> board, game`
+  Load data from the database using `label`.
+  Data from the document should be *deserialised*, and returned as `board` and `game` objects.
+  The label should be assigned to `game.name`.
+
+- `save(board, game)`
+  Save data to the database.  
+  The label used should be obtained from `game.name`.  
+  Data from the `board` and `game` objects should be *serialised* before being sent to the database.
+
+- `initgame(board, game)`
+  Checks the database to see if game data already exists.  
+  If it does not exist, insert a document with initial game data.
+
+**Hint:** Use the `fromdoc()` and `todoc()` methods of each class to carry out serialisation and deserialisation easily.
+
+## Task 4
+
+Define a function, `save_to_json()`, that writes the game data to a JSON file.
+
+This function is called after each players' turn.
+
+(This will aid you in debugging, by making it easier to inspect your data.)
