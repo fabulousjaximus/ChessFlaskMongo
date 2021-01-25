@@ -241,17 +241,6 @@ class ChessBoard:
             )
         return doc
 
-    def load(self, gamename, datasource):
-        '''Download board state from database'''
-        # boarddata is a dictionary of coord:piece pairs
-        boarddict = datasource.get_board(gamename)
-        for key, value in boarddict.items():
-            self.position[key] = value
-    
-    def save(self, gamename, datasource):
-        '''Upload board state to database'''
-        datasource.set_board(gamename, self.asdict())
-
     def coords(self, colour=None):
         '''
         Return list of piece coordinates.

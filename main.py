@@ -2,10 +2,32 @@
 # https://chessflask.mrjsng.repl.co/
 
 from flask import Flask, render_template, redirect, request
-import pymongo
 from chess import GameMaster, ChessBoard
 from interface import WebInterface
 from errors import MoveError
+
+## ER Model
+'''
+{                         ## Chess document
+    game: {               ## Game document
+        name: str,
+        turn: str
+    },
+    board: {              ## Board document
+        position: [
+            {             ## Coord document
+                x: int,
+                y: int,
+                piece: {  ## Piece document
+                    colour: str,
+                    name: str,
+                    moved: bool
+                }
+            }
+        ]
+    }
+}
+'''
 
 class DataStore:
     def __init__(self, uri):
@@ -14,24 +36,27 @@ class DataStore:
     def load(self, label):
         '''
         Load data from the database using label.
-        Deserialises data from the document and returns board and game objects.
+        Deserialises data from the document and
+        returns board and game objects.
         Assigns the label to game.name attribute.
         '''
-        pass
+        return board, game
 
     def save(self, board, game):
         '''
         Save data to the database.
         The label used should be obtained from game.name.
-        Data from the board and game objects should be serialised
-        before being sent to the database.
+        Data from the board and game objects should
+        be serialised before being sent to the database.
         '''
         pass
 
     def initgame(self, board, game):
         '''
-        Checks the database to see if game data already exists.
-        If it does not exist, insert a document with initial game data.
+        Checks the database to see if game data
+        already exists.
+        If it does not exist, insert a document
+        with initial game data into the database.
         '''
         pass
 
